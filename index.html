@@ -474,6 +474,18 @@
                 setLoading(this, false);
             }
         });
+
+       // Récupérer le lien de parrainage à partir de l'URL
+const urlParams = new URLSearchParams(window.location.search);
+const referralCode = urlParams.get('ref');
+
+// Trouver le champ du code de parrainage dans le formulaire d'inscription
+const referralCodeInput = document.getElementById('referralCode');
+
+// Insérer automatiquement le code de parrainage dans le champ correspondant
+if (referralCodeInput && referralCode) {
+  referralCodeInput.value = referralCode;
+} 
     </script>
 </body>
 </html>
