@@ -291,70 +291,26 @@
         </div>
     </div>
 
-       <script type="module">
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
     import { getDatabase, ref, onValue, query, orderByChild, equalTo, update, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // Configuration Firebase
     const firebaseConfig = {
-        apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
-        authDomain: "trading-86409.firebaseapp.com",
-        databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
-        projectId: "trading-86409",
-        storageBucket: "trading-86409.appspot.com",
-        messagingSenderId: "886645969622",
-        appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
+        apiKey: "API_KEY",
+        authDomain: "AUTH_DOMAIN",
+        databaseURL: "DATABASE_URL",
+        projectId: "PROJECT_ID",
+        storageBucket: "STORAGE_BUCKET",
+        messagingSenderId: "MESSAGING_SENDER_ID",
+        appId: "APP_ID"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const database = getDatabase(app);
 
-    // Fonction pour obtenir l'URL de base du lien de parrainage dynamiquement
-    function getReferralBaseUrl() {
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        const port = window.location.port ? `:${window.location.port}` : '';
-        
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return `${protocol}//${hostname}${port}/index.html?ref=`;
-        }
-        
-        return `${protocol}//${hostname}/index.html?ref=`;
-    }
-
-    // Fonction pour afficher le message de succès
-    function showSuccessMessage() {
-        const message = document.getElementById('successMessage');
-        message.style.display = 'block';
-        setTimeout(() => {
-            message.style.display = 'none';
-        }, 2000);
-    }
-
-    // Fonction pour copier le texte
-    async function copyText(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            showSuccessMessage();
-        } catch (err) {
-            console.error('Erreur lors de la copie:', err);
-        }
-    }
-
-    // Fonctions de copie
-    window.copyReferralCode = function() {
-        const code = document.getElementById('userReferralCode').textContent;
-        copyText(code);
-    }
-
-    window.copyReferralLink = function() {
-        const link = document.getElementById('referralLink').textContent;
-        copyText(link);
-    }
-
-    // Fonction pour formater le montant en FCFA sans conversion
+    // Fonction pour formater le montant en FCFA
     function formatFCFA(amount) {
         return amount.toLocaleString('fr-FR', {
             minimumFractionDigits: 0,
@@ -369,15 +325,22 @@
             const snapshot = await get(userRef);
             const userData = snapshot.val();
             
+            // Vérification si le bonus a déjà été crédité
+            if (userData.bonusCredited) {
+                console.log(`Le bonus de 5 % a déjà été crédité pour l'utilisateur ${userId}.`);
+                return;  // Si le bonus est déjà crédité, arrêter la fonction
+            }
+
             const currentBalance = userData.balance || 0;
             const bonusAmount = totalTeamBalance * 0.05;  // 5% de bonus
             const newBalance = currentBalance + bonusAmount;
-            
+
             await update(userRef, {
                 balance: newBalance,
+                bonusCredited: true,  // Marquer le bonus comme crédité
                 lastBonusUpdate: Date.now()
             });
-            
+
             console.log(`Bonus de ${formatFCFA(bonusAmount)} crédité pour ${userId}`);
         } catch (error) {
             console.error("Erreur lors du crédit du bonus:", error);
@@ -387,7 +350,7 @@
     // Fonction pour mettre à jour l'interface de l'équipe
     function updateTeamUI(teamMembers) {
         const teamContainer = document.getElementById('teamContainer');
-        
+
         if (teamMembers.length > 0) {
             const totalTeamBalance = teamMembers.reduce((sum, member) => sum + (member.balance || 0), 0);
             const totalBonus = totalTeamBalance * 0.05;  // 5 % de bonus
@@ -446,15 +409,7 @@
             onValue(userRef, (snapshot) => {
                 const userData = snapshot.val();
                 if (userData && userData.referralCode) {
-                    console.log("Code de parrainage trouvé :", userData.referralCode);
-                    
                     document.getElementById('userReferralCode').textContent = userData.referralCode;
-                    
-                    const fullReferralLink = `${getReferralBaseUrl()}${userData.referralCode}`;
-                    document.getElementById('referralLink').textContent = fullReferralLink;
-                    console.log("Lien de parrainage généré :", fullReferralLink);
-                } else {
-                    console.warn("Code de parrainage manquant pour l'utilisateur :", user.uid);
                 }
             });
 
@@ -477,11 +432,6 @@
                 updateTeamUI(teamMembers);
             }, (error) => {
                 console.error("Erreur lors de l'écoute des membres:", error);
-                document.getElementById('teamContainer').innerHTML = `
-                    <div class="no-members">
-                        Une erreur est survenue lors du chargement des membres de l'équipe.
-                    </div>
-                `;
             });
         } else {
             window.location.href = 'index.html';
