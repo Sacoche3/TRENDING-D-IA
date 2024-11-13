@@ -318,10 +318,10 @@
         const port = window.location.port ? `:${window.location.port}` : '';
         
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return `${protocol}//${hostname}${port}/register?ref=`;
+            return `${protocol}//${hostname}${port}/index.html?ref=`;
         }
         
-        return `${protocol}//${hostname}/index ?ref=`;
+        return `${protocol}//${hostname}/index.html?ref=`;
     }
 
     // Fonction pour afficher le message de succès
