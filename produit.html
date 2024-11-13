@@ -4,182 +4,195 @@
   <title>Plateforme d'Investissement Crypto</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-  * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Nunito', sans-serif;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
 
-    body {
-      background-color: #f4f4f4;
-      color: #333;
-    }
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Nunito', sans-serif;
+}
 
-    header {
-      background: linear-gradient(135deg, #0077b6, #00a2ff);
-      color: white;
-      padding: 2rem;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+body {
+  background-color: #f4f4f4;
+  color: #333;
+}
 
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-    }
+header {
+  background: linear-gradient(135deg, #0077b6, #00a2ff);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-    .user-info {
-      background-color: rgba(255, 255, 255, 0.2);
-      padding: 0.5rem 1.5rem;
-      border-radius: 1rem;
-      display: inline-block;
-      margin-top: 1rem;
-      backdrop-filter: blur(10px);
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
 
-    .investment-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      padding: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+.user-info {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1.5rem;
+  border-radius: 1rem;
+  display: inline-block;
+  margin-top: 1rem;
+  backdrop-filter: blur(10px);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
 
-    .investment-option {
-      background-color: white;
-      border-radius: 1rem;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+.investment-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 0rem;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 0 auto;
+}
 
-    .investment-option:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
+.investment-grid div {
+  font-size: 1.9rem; /* Augmente la taille de la police */
+  line-height: 2.1;  /* Augmente l'espacement des lignes */
+  padding: 0.8rem;   /* Ajoute un peu de padding autour du texte */
+  background-color: #f9f9f9; /* Optionnel : couleur d’arrière-plan pour le contraste */
+  border-radius: 5px; /* Bordures arrondies pour un meilleur aspect visuel */
+  box-shadow: 0px 10px 6px rgba(0, 0, 0, 0.1); /* Ajoute une ombre douce pour détacher les éléments */
+}
 
-    .investment-option img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-bottom: 1px solid #eee;
-    }
 
-    .investment-details {
-      padding: 1.5rem;
-    }
 
-    .investment-details h3 {
-      font-size: 1.5rem;
-      color: #0077b6;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+.investment-option:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
 
-    .investment-details p {
-      color: #666;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+.investment-option img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
 
-    .investment-details i {
-      width: 20px;
-      color: #0077b6;
-    }
+.investment-details {
+  padding: 1.5rem;
+}
 
-    button {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #0077b6, #00a2ff);
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
+.investment-details h3 {
+  font-size: 1.5rem;
+  color: #0077b6;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-    button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 119, 182, 0.3);
-    }
+.investment-details p {
+  color: #666;
+  margin-bottom: 0.5rem; /* Réduisez l'espacement vertical entre les paragraphes */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+.investment-details p:nth-child(3) {
+  flex-direction: column; /* Afficher le revenu quotidien sur une seule ligne */
+  align-items: flex-start;
+}
 
-    .loading {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+.investment-details p:nth-child(3) span {
+  margin-right: 0.5rem; /* Ajouter un peu d'espacement horizontal entre l'icône et le revenu */
+}
 
-    .loading::after {
-      content: '';
-      width: 50px;
-      height: 50px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #00a2ff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
+.investment-details i {
+  width: 20px;
+  color: #0077b6;
+}
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #0077b6, #00a2ff);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
 
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: 0.5rem;
-      color: white;
-      font-weight: 600;
-      display: none;
-      animation: slideIn 0.3s ease;
-      z-index: 1000;
-    }
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.3);
+}
 
-    @keyframes slideIn {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
-    }
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
 
-    .success {
-      background: linear-gradient(135deg, #28a745, #218838);
-    }
+.loading {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
-    .error {
-      background: linear-gradient(135deg, #dc3545, #c82333);
-    }
+.loading::after {
+  content: '';
+  width: 50px;
+  height: 50px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #00a2ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 600;
+  display: none;
+  animation: slideIn 0.3s ease;
+  z-index: 1000;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.success {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.error {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
   </style>
 </head>
 <body>
   
-
-  <div class="loading" id="loadingOverlay"></div>
+ <div class="loading" id="loadingOverlay"></div>
   <div class="notification" id="notification"></div>
 
   <div class="investment-grid">
@@ -188,11 +201,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731336486-2fd4345d8c3a46278941afd9ab7ad225.jpg" alt="USDT">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>USDT</h3>
-        <p><i class="fas fa-tag"></i>Prix: 3 800 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 760 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 7 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 5 320 FCFA</p>
-        <button onclick="invest(0, 3800, 760, 7)">
+        <p><i class="fas fa-tag"></i>Prix: 5 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 200 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 8 000FCFA</p>
+        <button onclick="invest(0, 5000, 200, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -203,11 +216,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731337360-5cc0b99a8dd84fbfa4e150d84b5531f2.png" alt="SOLANA">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>SOLANA</h3>
-        <p><i class="fas fa-tag"></i>Prix: 5 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 450 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 20 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 9 000 FCFA</p>
-        <button onclick="invest(1, 5000, 450, 20)">
+        <p><i class="fas fa-tag"></i>Prix: 10 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 400 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 16 000 FCFA</p>
+        <button onclick="invest(1, 10000, 400, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -218,11 +231,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731345974-btc-logo-6219386-960-720.png" alt="BTC">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>BTC</h3>
-        <p><i class="fas fa-tag"></i>Prix: 10 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 850 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 24 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 20 400 FCFA</p>
-        <button onclick="invest(2, 10000, 850, 24)">
+        <p><i class="fas fa-tag"></i>Prix: 20 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 700 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 28 000FCFA</p>
+        <button onclick="invest(2, 20000, 700, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -233,11 +246,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731346277-t-l-chargement.jpeg" alt="POL">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>POL</h3>
-        <p><i class="fas fa-tag"></i>Prix: 15 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 1 000 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 26 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 26 000 FCFA</p>
-        <button onclick="invest(3, 15000, 1000, 26)">
+        <p><i class="fas fa-tag"></i>Prix: 30 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 1 200 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 48 000 FCFA</p>
+        <button onclick="invest(3, 30000, 1200, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -248,11 +261,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731346884-dddether.jpg" alt="ETH">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>ETH</h3>
-        <p><i class="fas fa-tag"></i>Prix: 30 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 2 500 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 25 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 62 500 FCFA</p>
-        <button onclick="invest(4, 30000, 2500, 25)">
+        <p><i class="fas fa-tag"></i>Prix: 40 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 1 500 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 60 000 FCFA</p>
+        <button onclick="invest(4, 40000, 1500, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -263,11 +276,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731347271-images.png" alt="TWT">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>TWT</h3>
-        <p><i class="fas fa-tag"></i>Prix: 75 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 4 000 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 31 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 124 000 FCFA</p>
-        <button onclick="invest(5, 75000, 4000, 31)">
+        <p><i class="fas fa-tag"></i>Prix: 50 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 2 500 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 100 000 FCFA</p>
+        <button onclick="invest(5, 50000, 2500, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -278,11 +291,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731347558-t-l-chargement.png" alt="LTC">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>LTC</h3>
-        <p><i class="fas fa-tag"></i>Prix: 100 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 5 000 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 30 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 150 000 FCFA</p>
-        <button onclick="invest(6, 100000, 5000, 30)">
+        <p><i class="fas fa-tag"></i>Prix: 75 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 4 500 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 180 000 FCFA</p>
+        <button onclick="invest(6, 75000, 4500, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -293,11 +306,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731347964-images.jpeg" alt="BCH">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>BCH</h3>
-        <p><i class="fas fa-tag"></i>Prix: 200 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 7 000 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 60 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 420 000 FCFA</p>
-        <button onclick="invest(7, 200000, 7000, 60)">
+        <p><i class="fas fa-tag"></i>Prix: 100 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 5 500 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 220 000 FCFA</p>
+        <button onclick="invest(7, 100000, 5500, 40)">
           <i class="fas fa-rocket"></i> Investir
         </button>
       </div>
@@ -308,11 +321,11 @@
       <img src="https://image.noelshack.com/fichiers/2024/46/1/1731348267-images-1.png" alt="ALGO">
       <div class="investment-details">
         <h3><i class="fas fa-coins"></i>ALGO</h3>
-        <p><i class="fas fa-tag"></i>Prix: 350 000 FCFA</p>
-        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 10 000 FCFA</p>
-        <p><i class="fas fa-clock"></i>Cycle: 69 jours</p>
-        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 600 000 FCFA</p>
-        <button onclick="invest(8, 350000, 10000, 69)">
+        <p><i class="fas fa-tag"></i>Prix: 150 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 7 500 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 40 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 300 000 FCFA</p>
+        <button onclick="invest(8, 150000, 7500, 40)">
           <i class="fas fa-rocket"></i> Investir
            
   
