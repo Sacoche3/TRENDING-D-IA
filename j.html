@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Plateforme d'Investissement Crypto</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background: #f0f2f5;
+      color: #1a1a1a;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/api/placeholder/1920/300') center/cover;
+      opacity: 0.1;
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .user-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 2rem;
+      border-radius: 1rem;
+      display: inline-block;
+      margin-top: 1rem;
+      backdrop-filter: blur(10px);
+    }
+    
+    .investment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .investment-option {
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .investment-option:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .investment-option img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .investment-details {
+      padding: 1.5rem;
+    }
+    
+    .investment-details h3 {
+      font-size: 1.5rem;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .investment-details p {
+      color: #666;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .investment-details i {
+      width: 20px;
+      color: #2a5298;
+    }
+    
+    button {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+    }
+    
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .loading::after {
+      content: '';
+      width: 50px;
+      height: 50px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #2a5298;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      color: white;
+      font-weight: 500;
+      display: none;
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    
+    .success {
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    }
+    
+    .error {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+  </style>
+</head>
+<body>
+  
+
+  <div class="loading" id="loadingOverlay"></div>
+  <div class="notification" id="notification"></div>
+
+  <div class="investment-grid">
+    <!-- USDT -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731336486-2fd4345d8c3a46278941afd9ab7ad225.jpg" alt="USDT">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>USDT</h3>
+        <p><i class="fas fa-tag"></i>Prix: 3 800 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 760 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 7 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 5 320 FCFA</p>
+        <button onclick="invest(0, 3800, 760, 7)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+    
+     <!-- SOLANA -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731337360-5cc0b99a8dd84fbfa4e150d84b5531f2.png" alt="SOLANA">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>SOLANA</h3>
+        <p><i class="fas fa-tag"></i>Prix: 5 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 450 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 20 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 9 000 FCFA</p>
+        <button onclick="invest(1, 5000, 450, 20)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- BTC -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731345974-btc-logo-6219386-960-720.png" alt="BTC">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>BTC</h3>
+        <p><i class="fas fa-tag"></i>Prix: 10 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 850 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 24 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 20 400 FCFA</p>
+        <button onclick="invest(2, 10000, 850, 24)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- POL -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731346277-t-l-chargement.jpeg" alt="POL">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>POL</h3>
+        <p><i class="fas fa-tag"></i>Prix: 15 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 1 000 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 26 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 26 000 FCFA</p>
+        <button onclick="invest(3, 15000, 1000, 26)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- ETH -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731346884-dddether.jpg" alt="ETH">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>ETH</h3>
+        <p><i class="fas fa-tag"></i>Prix: 30 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 2 500 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 25 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 62 500 FCFA</p>
+        <button onclick="invest(4, 30000, 2500, 25)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- TWT -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731347271-images.png" alt="TWT">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>TWT</h3>
+        <p><i class="fas fa-tag"></i>Prix: 75 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 4 000 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 31 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 124 000 FCFA</p>
+        <button onclick="invest(5, 75000, 4000, 31)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- LTC -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731347558-t-l-chargement.png" alt="LTC">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>LTC</h3>
+        <p><i class="fas fa-tag"></i>Prix: 100 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 5 000 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 30 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 150 000 FCFA</p>
+        <button onclick="invest(6, 100000, 5000, 30)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- BCH -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731347964-images.jpeg" alt="BCH">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>BCH</h3>
+        <p><i class="fas fa-tag"></i>Prix: 200 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 7 000 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 60 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 420 000 FCFA</p>
+        <button onclick="invest(7, 200000, 7000, 60)">
+          <i class="fas fa-rocket"></i> Investir
+        </button>
+      </div>
+    </div>
+
+    <!-- ALGO -->
+    <div class="investment-option">
+      <img src="https://image.noelshack.com/fichiers/2024/46/1/1731348267-images-1.png" alt="ALGO">
+      <div class="investment-details">
+        <h3><i class="fas fa-coins"></i>ALGO</h3>
+        <p><i class="fas fa-tag"></i>Prix: 350 000 FCFA</p>
+        <p><i class="fas fa-chart-line"></i>Revenus quotidien: 10 000 FCFA</p>
+        <p><i class="fas fa-clock"></i>Cycle: 69 jours</p>
+        <p><i class="fas fa-money-bill-wave"></i>Revenus total: 600 000 FCFA</p>
+        <button onclick="invest(8, 350000, 10000, 69)">
+          <i class="fas fa-rocket"></i> Investir
+           
+  
+    
+    <!-- Ajoutez ici les autres options d'investissement de la même manière -->
+    <!-- Je continue avec le reste du code dans la prochaine section -->
+
+    <!-- Les autres options d'investissement... -->
+    
+    
+
+
+  </div>
+
+  <!-- Import des modules Firebase -->
+  <script type="module">
+    // Import de Firebase
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getDatabase, ref, onValue, set, update } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
+      authDomain: "trading-86409.firebaseapp.com",
+      databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
+      projectId: "trading-86409",
+      storageBucket: "trading-86409.firebasestorage.app",
+      messagingSenderId: "886645969622",
+      appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
+    };
+
+    // Initialiser Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Variables globales
+    let currentUser = null;
+    let userBalance = 0;
+    let userInvestments = {};
+
+    // Fonctions utilitaires
+    window.showLoading = function(show = true) {
+      document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    }
+
+    window.showNotification = function(message, isError = false) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${isError ? 'error' : 'success'}`;
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    function updateUserInterface() {
+      document.getElementById('userBalance').textContent = `Solde: ${userBalance.toLocaleString()} FCFA`;
+    }
+
+    // Fonction d'investissement
+    window.invest = async function(productId, price, dailyRevenue, totalDays) {
+      if (!currentUser) {
+        showNotification("Veuillez vous connecter pour investir", true);
+        return;
+      }
+
+      try {
+        showLoading(true);
+
+        const currentInvestment = userInvestments[`product${productId}`] || { count: 0 };
+        if (currentInvestment.count >= 1) {
+          showNotification("Vous avez déjà acheté ce produit", true);
+          return;
+        }
+
+        if (userBalance < price) {
+          showNotification("Solde insuffisant", true);
+          return;
+        }
+
+        const newBalance = userBalance - price;
+        const investment = {
+          productId: `product${productId}`,
+          price,
+          dailyRevenue,
+          totalDays,
+          startDate: Date.now(),
+          count: (currentInvestment.count || 0) + 1,
+          lastRevenueDate: Date.now()
+        };
+
+        const updates = {};
+        updates[`/users/${currentUser.uid}/balance`] = newBalance;
+        updates[`/users/${currentUser.uid}/investments/product${productId}`] = investment;
+        
+        await update(ref(database), updates);
+
+        userBalance = newBalance;
+        userInvestments[`product${productId}`] = investment;
+        updateUserInterface();
+        showNotification("Investissement réussi!");
+
+      } catch (error) {
+        console.error("Erreur lors de l'investissement:", error);
+        showNotification("Une erreur est survenue lors de l'investissement", true);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Fonction pour créditer les revenus
+    async function creditDailyRevenue() {
+      if (!currentUser) return;
+
+      try {
+        const now = Date.now();
+        let totalRevenue = 0;
+
+        for (const [productId, investment] of Object.entries(userInvestments)) {
+          const hoursSinceLastRevenue = (now - investment.lastRevenueDate) / (1000 * 60 * 60);
+          
+          if (hoursSinceLastRevenue >= 24) {
+            const daysPassed = Math.floor((now - investment.startDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysPassed <= investment.totalDays) {
+              totalRevenue += investment.dailyRevenue;
+              investment.lastRevenueDate = now;
+              
+              await set(ref(database, `users/${currentUser.uid}/investments/${productId}/lastRevenueDate`), now);
+            }
+          }
+        }
+
+        if (totalRevenue > 0) {
+          userBalance += totalRevenue;
+          await set(ref(database, `users/${currentUser.uid}/balance`), userBalance);
+          updateUserInterface();
+          showNotification(`Revenus crédités: ${totalRevenue} FCFA`);
+        }
+      } catch (error) {
+        console.error("Erreur lors du crédit des revenus:", error);
+      }
+    }
+
+    // Gestion de l'authentification
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      
+      if (user) {
+        try {
+          showLoading(true);
+          
+          onValue(ref(database, `users/${user.uid}`), (snapshot) => {
+            const userData = snapshot.val() || {};
+            userBalance = userData.balance || 0;
+            userInvestments = userData.investments || {};
+            updateUserInterface();
+          });
+
+          setInterval(creditDailyRevenue, 60000); // Vérifier toutes les minutes
+          creditDailyRevenue(); // Vérifier immédiatement
+
+        } catch (error) {
+          console.error("Erreur lors du chargement des données:", error);
+          showNotification("Erreur lors du chargement des données", true);
+        } finally {
+          showLoading(false);
+        }
+      } else {
+        // Réinitialiser les données
+        userBalance = 0;
+        userInvestments = {};
+        updateUserInterface();
+      }
+    });
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', () => {
+      // Gérer les erreurs de chargement des images
+      const images = document.querySelectorAll('img');
+      images.forEach(img => {
+        img.onerror = function() {
+          this.src = 'https://via.placeholder.com/100';
+        };
+      });
+    });
+  </script>
+</body>
+</html>

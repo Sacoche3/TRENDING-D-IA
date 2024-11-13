@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription / Connexion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .tab-button {
+            padding: 12px 25px;
+            border: none;
+            background: none;
+            color: #666;
+            font-size: 16px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #764ba2;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #764ba2;
+            font-weight: bold;
+        }
+
+        .tab-button.active::after {
+            transform: scaleX(1);
+        }
+
+        .form-container {
+            position: relative;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+            position: absolute;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        form.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+            pointer-events: all;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #764ba2;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Animation de chargement */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #764ba2;
+            border-top-color: transparent;
+            border-radius: 50%;
+            z-index: 1;
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue</h1>
+        
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showLogin()">Connexion</button>
+            <button class="tab-button" onclick="showSignup()">Inscription</button>
+        </div>
+
+        <div class="form-container">
+            <form id="loginFormData" class="active">
+                <div class="input-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required />
+                </div>
+                <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="Mot de passe" required />
+                </div>
+                <p class="error-message" id="loginError"></p>
+                <button type="submit">Se connecter</button>
+            </form>
+
+            <form id="signupFormData">
+                <div class="input-group">
+                    <input type="text" id="signupUsername" placeholder="Nom d'utilisateur" required />
+                </div>
+                <div class="input-group">
+                    <input type="email" id="signupEmail" placeholder="Email" required />
+                </div>
+                <div class="input-group">
+                    <input type="password" id="signupPassword" placeholder="Mot de passe" required />
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" required />
+                </div>
+                <div class="input-group">
+                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
+                </div>
+                <p class="error-message" id="signupError"></p>
+                <p class="success-message" id="signupSuccess"></p>
+                <button type="submit">S'inscrire</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
+            authDomain: "trading-86409.firebaseapp.com",
+            databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
+            projectId: "trading-86409",
+            storageBucket: "trading-86409.firebasestorage.app",
+            messagingSenderId: "886645969622",
+            appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
+        };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const database = getDatabase(app);
+
+        // Fonction pour générer un code de parrainage unique
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Fonction pour vérifier si un code de parrainage existe
+        async function checkReferralCode(code) {
+            if (!code) return null;
+            
+            try {
+                const snapshot = await get(ref(database, 'referralCodes/' + code));
+                if (snapshot.exists()) {
+                    return snapshot.val();
+                }
+                return null;
+            } catch (error) {
+                console.error("Erreur lors de la vérification du code de parrainage:", error);
+                return null;
+            }
+        }
+
+        // Fonction pour enregistrer un nouveau code de parrainage
+        async function registerReferralCode(userId, code) {
+            try {
+                await set(ref(database, 'referralCodes/' + code), {
+                    userId: userId,
+                    createdAt: Date.now()
+                });
+                return true;
+            } catch (error) {
+                console.error("Erreur lors de l'enregistrement du code de parrainage:", error);
+                return false;
+            }
+        }
+
+        // Fonction pour mettre à jour le solde d'un utilisateur
+        async function updateUserBalance(userId, amount) {
+            try {
+                const userRef = ref(database, 'users/' + userId);
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    const currentBalance = snapshot.val().balance || 0;
+                    await set(ref(database, 'users/' + userId + '/balance'), currentBalance + amount);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour du solde:", error);
+            }
+        }
+
+        // Fonction pour afficher le formulaire de connexion
+        window.showLogin = function() {
+            document.getElementById("loginFormData").classList.add("active");
+            document.getElementById("signupFormData").classList.remove("active");
+            document.querySelectorAll(".tab-button").forEach((btn, index) => {
+                btn.classList.toggle("active", index === 0);
+            });
+        }
+
+        // Fonction pour afficher le formulaire d'inscription
+        window.showSignup = function() {
+            document.getElementById("signupFormData").classList.add("active");
+            document.getElementById("loginFormData").classList.remove("active");
+            document.querySelectorAll(".tab-button").forEach((btn, index) => {
+                btn.classList.toggle("active", index === 1);
+            });
+        }
+
+        function setLoading(form, isLoading) {
+            if (isLoading) {
+                form.classList.add('loading');
+            } else {
+                form.classList.remove('loading');
+            }
+        }
+
+        // Gérer l'inscription
+        document.getElementById("signupFormData").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            setLoading(this, true);
+            const errorElement = document.getElementById("signupError");
+            const successElement = document.getElementById("signupSuccess");
+            errorElement.innerText = "";
+            successElement.innerText = "";
+
+            try {
+                const username = document.getElementById("signupUsername").value;
+                const email = document.getElementById("signupEmail").value;
+                const password = document.getElementById("signupPassword").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+                const referralCode = document.getElementById("referralCode").value;
+
+                if (password !== confirmPassword) {
+                    throw new Error("Les mots de passe ne correspondent pas.");
+                }
+
+                // Vérifier le code de parrainage s'il est fourni
+                let referrerData = null;
+                if (referralCode) {
+                    referrerData = await checkReferralCode(referralCode);
+                    if (!referrerData) {
+                        throw new Error("Code de parrainage invalide.");
+                    }
+                }
+
+                // Créer le compte utilisateur
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Générer un nouveau code de parrainage unique pour l'utilisateur
+                const newReferralCode = generateReferralCode();
+                
+                // Enregistrer les informations de l'utilisateur
+                await set(ref(database, 'users/' + user.uid), {
+                    username: username,
+                    email: email,
+                    balance: 0,
+                    referralCode: newReferralCode,
+                    referredBy: referrerData ? referrerData.userId : null,
+                    createdAt: Date.now()
+                });
+
+                // Enregistrer le nouveau code de parrainage
+                await registerReferralCode(user.uid, newReferralCode);
+
+                // Si l'utilisateur a utilisé un code de parrainage valide
+                if (referrerData) {
+                    await updateUserBalance(referrerData.userId, 10); // Bonus de 10 pour le parrain
+                    await updateUserBalance(user.uid, 5); // Bonus de 5 pour le filleul
+                    successElement.innerText = "Inscription réussie avec code de parrainage ! Bonus appliqué.";
+                }
+
+                // Rediriger vers la page de solde après un court délai
+                setTimeout(() => {
+                    window.location.href = "solde.html";
+                }, 1500);
+
+            } catch (error) {
+                errorElement.innerText = error.message;
+            } finally {
+                setLoading(this, false);
+            }
+        });
+
+        // Gérer la connexion
+        document.getElementById("loginFormData").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            setLoading(this, true);
+
+            try {
+                const email = document.getElementById("loginEmail").value;
+                const password = document.getElementById("loginPassword").value;
+
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = "solde.html";
+            } catch (error) {
+                document.getElementById("loginError").innerText = error.message;
+            } finally {
+                setLoading(this, false);
+            }
+        });
+    </script>
+</body>
+</html>

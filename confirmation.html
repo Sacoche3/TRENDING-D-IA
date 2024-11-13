@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Confirmation de Paiement</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --success-color: #10b981;
+            --background: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .info {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .payment-number {
+            font-size: 18px;
+            color: var(--text-color);
+            margin-bottom: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+        }
+
+        .instructions {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff7ed;
+            border: 2px solid #fdba74;
+            border-radius: 12px;
+            color: #9a3412;
+        }
+
+        .instructions h3 {
+            color: #ea580c;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .instructions ul {
+            list-style-type: none;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .instructions li i {
+            margin-top: 4px;
+            color: #ea580c;
+        }
+
+        .copy-button {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text-color);
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px;
+                border-radius: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Confirmation de Paiement</h2>
+        
+        <div class="info">
+            <div class="payment-number">
+                <strong id="paymentNumber"></strong>
+            </div>
+            <button id="copyNumber" class="copy-button">
+                <i class="fas fa-copy"></i>
+                Copier le numéro
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Instructions importantes</h3>
+            <ul>
+                <li><i class="fas fa-chevron-right"></i> Après votre paiement, contactez le service client pour validation</li>
+                <li><i class="fas fa-chevron-right"></i> Documents requis :
+                    <ul style="margin-left: 24px; margin-top: 8px;">
+                        <li><i class="fas fa-check"></i> Preuve de paiement (capture d'écran)</li>
+                        <li><i class="fas fa-check"></i> Votre adresse Gmail</li>
+                    </ul>
+                </li>
+                <li><i class="fas fa-chevron-right"></i> Le service client vérifiera et approuvera votre paiement</li>
+            </ul>
+        </div>
+
+        <form id="confirmationForm">
+            <div class="form-group">
+                <i class="fas fa-money-bill"></i>
+                <input type="text" id="paymentInput" name="paymentInput" placeholder="Numéro de paiement" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-hashtag"></i>
+                <input type="text" id="transactionId" name="transactionId" placeholder="ID de Transaction" required>
+            </div>
+
+            <button type="submit" class="submit-button">
+                <i class="fas fa-check-circle"></i>
+                Confirmer le paiement
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Récupérer les paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount');
+        const paymentMethod = urlParams.get('paymentMethod');
+        const paymentNumber = decodeURIComponent(urlParams.get('number'));
+
+        document.getElementById('paymentNumber').textContent = paymentNumber;
+        document.getElementById('paymentInput').value = paymentNumber;
+
+        // Fonction de copie du numéro
+        document.getElementById('copyNumber').onclick = function() {
+            navigator.clipboard.writeText(paymentNumber).then(function() {
+                alert('Numéro de paiement copié !');
+            });
+        };
+
+        // Gestion de la soumission du formulaire
+        document.getElementById('confirmationForm').onsubmit = function(event) {
+            event.preventDefault();
+            
+            const message = `Votre paiement a été enregistré !\n\n` +
+                          `Pour finaliser votre transaction, veuillez :\n` +
+                          `1. Conserver votre preuve de paiement\n` +
+                          `2. Préparer votre identifiant Gmail\n` +
+                          `3. Contacter notre service client pour la validation\n\n` +
+                          `Notre équipe validera votre paiement dans les plus brefs délais.`;
+            
+            alert(message);
+            
+            // Réinitialiser le formulaire
+            document.getElementById('confirmationForm').reset();
+        };
+
+        // Réinitialiser après 14 minutes
+        setTimeout(function() {
+            document.getElementById('paymentInput').value = '';
+            document.getElementById('transactionId').value = '';
+            alert('Session expirée. Veuillez recommencer le processus de paiement.');
+        }, 14 * 60 * 1000);
+    </script>
+</body>
+</html>

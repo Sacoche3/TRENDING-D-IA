@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dépôt SILOPE</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --background: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 24px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .info {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text-color);
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method.active {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .payment-method img {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px;
+                border-radius: 16px;
+            }
+            
+            .payment-method {
+                min-width: calc(50% - 6px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Dépôt TRADING D IA</h2>
+        <p class="info">Effectuez votre dépôt en toute sécurité</p>
+        
+        <form id="rechargeForm">
+            <div class="form-group">
+                <i class="fas fa-dollar-sign"></i>
+                <input type="number" id="amount" name="amount" placeholder="Montant à déposer" min="5000" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-credit-card"></i>
+                <select id="paymentMethod" name="paymentMethod" required>
+                    <option value="">Sélectionnez un mode de paiement</option>
+                    <option value="mtn">MTN Money</option>
+                    <option value="moov">Moov Money</option>
+                    <option value="orange">Orange Money</option>
+                    <option value="wave">Wave</option>
+                    <option value="usd">USDT (TRC20)</option>
+                </select>
+            </div>
+
+            <button type="submit">
+                <i class="fas fa-arrow-right"></i>
+                Continuer
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('rechargeForm').onsubmit = function(event) {
+            event.preventDefault();
+            var paymentMethod = document.getElementById('paymentMethod').value;
+            var amount = document.getElementById('amount').value;
+            var paymentDetails = {
+                mtn: '+225 0554049897',
+                moov: '0140719995',
+                orange: 'indisponible',
+                wave: '0554049897',
+                usd: 'TR62NjKQASXmmKrxzQsCvDvxYQ71nsV3Pv'
+            };
+            
+            var selectedNumber = paymentDetails[paymentMethod];
+            if (selectedNumber) {
+                window.location.href = `confirmation.html?amount=${amount}&paymentMethod=${paymentMethod}&number=${encodeURIComponent(selectedNumber)}`;
+            }
+        };
+    </script>
+</body>
+</html>

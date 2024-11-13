@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Retrait</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .input-group label {
+            position: absolute;
+            left: 0.75rem;
+            top: -0.5rem;
+            padding: 0 0.25rem;
+            background-color: white;
+            font-size: 0.875rem;
+            color: #4b5563;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container max-w-lg mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Configuration du Retrait</h1>
+                <div class="bg-blue-100 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="input-group">
+                    <label for="phone">Numéro de téléphone</label>
+                    <input type="tel" id="phone" class="peer" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="operator">Opérateur</label>
+                    <select id="operator" class="peer" required>
+                        <option value="">Sélectionnez un opérateur</option>
+                        <option value="orange">Orange Money</option>
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="moov">Moov Money</option>
+                        <option value="Wave">WAVE VAGUE </option>
+                        <option value="Usdt">USDT TRON 20</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="code">Code de retrait</label>
+                    <input type="password" id="code" class="peer" required>
+                </div>
+
+                <button onclick="setupWithdrawal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02]">
+                    Configurer
+                </button>
+            </div>
+        </div>
+
+        <div id="message" class="text-center"></div>
+
+        <div class="text-center mt-6">
+            <a href="retrait.html" class="text-blue-600 hover:text-blue-800 font-medium">
+                Aller à la page de retrait →
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
+            authDomain: "trading-86409.firebaseapp.com",
+            databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
+            projectId: "trading-86409",
+            storageBucket: "trading-86409.firebasestorage.app",
+            messagingSenderId: "886645969622",
+            appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+
+        window.setupWithdrawal = async function() {
+            const phone = document.getElementById('phone').value;
+            const operator = document.getElementById('operator').value;
+            const code = document.getElementById('code').value;
+            const messageDiv = document.getElementById('message');
+
+            if (!phone || !operator || !code) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    showMessage('Vous devez être connecté', 'error');
+                    return;
+                }
+
+                await set(ref(db, `users/${user.uid}/withdrawalConfig`), {
+                    phone,
+                    operator,
+                    code,
+                    configuredAt: Date.now()
+                });
+
+                showMessage('Configuration enregistrée avec succès!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'withdrawal.html';
+                }, 2000);
+            } catch (error) {
+                showMessage(`Erreur: ${error.message}`, 'error');
+            }
+        };
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            const bgColor = type === 'error' ? 'bg-red-100' : 'bg-green-100';
+            const textColor = type === 'error' ? 'text-red-700' : 'text-green-700';
+            messageDiv.innerHTML = `
+                <div class="fade-in ${bgColor} ${textColor} px-4 py-3 rounded-lg mt-4">
+                    ${text}
+                </div>
+            `;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

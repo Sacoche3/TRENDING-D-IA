@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Mes Produits Investis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f4f6;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .investment-card {
+      transition: transform 0.2s ease-in-out;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .investment-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .progress-bar {
+      background: #e2e8f0;
+      border-radius: 9999px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      height: 100%;
+      transition: width 0.5s ease-in-out;
+    }
+
+    .notification {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      background: #f1f5f9;
+      transform: translateY(-2px);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .loading {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+
+    .loading::after {
+      content: '';
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .no-investments {
+      text-align: center;
+      padding: 2rem;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header class="header-bg shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+      <h1 class="text-3xl font-bold text-white text-center">Mes Produits Investis</h1>
+    </div>
+  </header>
+
+  <div class="glass-effect sticky top-0 z-10 shadow-md">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <span id="lastUpdate" class="text-sm text-gray-600"></span>
+      <span id="userBalance" class="text-lg font-semibold text-indigo-600"></span>
+    </div>
+  </div>
+
+  <main class="container mx-auto px-4 py-8">
+    <div id="investmentsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Les cartes d'investissement seront ajoutées ici -->
+    </div>
+  </main>
+
+  <div class="loading fixed inset-0 hidden items-center justify-center z-50" id="loadingOverlay"></div>
+  
+  <div class="notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 hidden" id="notification"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
+      authDomain: "trading-86409.firebaseapp.com",
+      databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
+      projectId: "trading-86409",
+      storageBucket: "trading-86409.firebasestorage.app",
+      messagingSenderId: "886645969622",
+      appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
+    };
+
+    // Initialiser Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Variables globales
+    let currentUser = null;
+    let checkRevenueInterval = null;
+
+    // Mapping des produits
+    const productData = {
+      product0: { name: 'USTD', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731336486-2fd4345d8c3a46278941afd9ab7ad225.jpg' },
+      product1: { name: 'SOLANA', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731337360-5cc0b99a8dd84fbfa4e150d84b5531f2.png' },
+      product2: { name: 'BTC', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731345974-btc-logo-6219386-960-720.png' },
+      product3: { name: 'POL', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731346277-t-l-chargement.jpeg' },
+      product4: { name: 'ETH', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731346884-dddether.jpg' },
+      product5: { name: 'TWT', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731347271-images.png' },
+      product6: { name: 'LTC', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731347558-t-l-chargement.png' },
+      product7: { name: 'BCH', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731347964-images.jpeg' },
+      product8: { name: 'ALGO', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731348267-images-1.png' },
+      product9: { name: 'XLM', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731348526-512.png' }
+    };
+
+    function showLoading(show = true) {
+      document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    }
+
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      notification.style.background = isError ? '#ef4444' : '#10b981';
+      notification.style.color = 'white';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    function formatDate(timestamp) {
+      return new Date(timestamp).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    function calculateProgress(startDate, totalDays) {
+      const now = Date.now();
+      const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+      return Math.min((daysPassed / totalDays) * 100, 100);
+    }
+
+    function calculateTotalEarned(investment) {
+      const daysPassed = Math.floor((Date.now() - investment.startDate) / (1000 * 60 * 60 * 24));
+      return Math.min(daysPassed, investment.totalDays) * investment.dailyRevenue;
+    }
+
+    function updateLastUpdateTime() {
+      const lastUpdate = document.getElementById('lastUpdate');
+      lastUpdate.textContent = `Dernière mise à jour: ${new Date().toLocaleTimeString()}`;
+    }
+
+    function updateUserInterface(userData) {
+      const container = document.getElementById('investmentsContainer');
+      container.innerHTML = '';
+
+      if (!userData || !userData.investments || Object.keys(userData.investments).length === 0) {
+        container.innerHTML = `
+          <div class="no-investments col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Aucun investissement</h2>
+            <p class="text-gray-500">Commencez à investir pour voir vos produits ici.</p>
+          </div>
+        `;
+        return;
+      }
+
+      Object.entries(userData.investments).forEach(([productId, investment]) => {
+        const product = productData[productId];
+        if (!product) return;
+
+        const progress = calculateProgress(investment.startDate, investment.totalDays);
+        const totalEarned = calculateTotalEarned(investment);
+        const remainingDays = Math.max(0, investment.totalDays - Math.floor((Date.now() - investment.startDate) / (1000 * 60 * 60 * 24)));
+
+        const card = document.createElement('div');
+        card.className = 'investment-card p-6';
+        card.innerHTML = `
+          <div class="flex items-center mb-4">
+            <img src="${product.image}" alt="${product.name}" class="w-16 h-16 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/64'">
+            <div class="ml-4">
+              <h3 class="text-xl font-semibold text-gray-800">${product.name}</h3>
+              <p class="text-sm text-gray-500">${investment.count} unité${investment.count > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          
+          <div class="stats-grid mb-4">
+            <div class="stat-card">
+              <h4 class="text-sm text-gray-500 mb-1">Investi le</h4>
+              <p class="font-semibold">${formatDate(investment.startDate)}</p>
+            </div>
+            <div class="stat-card">
+              <h4 class="text-sm text-gray-500 mb-1">Montant investi</h4>
+              <p class="font-semibold">${investment.price.toLocaleString()} FCFA</p>
+            </div>
+            <div class="stat-card">
+              <h4 class="text-sm text-gray-500 mb-1">Revenus/jour</h4>
+              <p class="font-semibold text-green-600">+${investment.dailyRevenue.toLocaleString()} FCFA</p>
+            </div>
+            <div class="stat-card">
+              <h4 class="text-sm text-gray-500 mb-1">Total gagné</h4>
+              <p class="font-semibold text-green-600">+${totalEarned.toLocaleString()} FCFA</p>
+            </div>
+            <div class="stat-card">
+              <h4 class="text-sm text-gray-500 mb-1">Jours restants</h4>
+              <p class="font-semibold">${remainingDays} jour${remainingDays > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${progress}%"></div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2 text-right">${Math.round(progress)}% complété</p>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+
+      document.getElementById('userBalance').innerHTML = `
+        <span class="mr-2">💰</span>
+        ${userData.balance?.toLocaleString() || 0} FCFA
+      `;
+    }
+
+    async function checkAndCreditRevenue(userId, userData) {
+      try {
+        const now = Date.now();
+        let totalRevenue = 0;
+        const updates = {};
+        let revenuesCredited = false;
+
+        if (userData.investments) {
+          for (const [productId, investment] of Object.entries(userData.investments)) {
+            const hoursSinceLastRevenue = (now - investment.lastRevenueDate) / (1000 * 60 * 60);
+            
+            if (hoursSinceLastRevenue >= 24) {
+              const daysPassed = Math.floor((now - investment.startDate) / (1000 * 60 * 60 * 24));
+              
+              if (daysPassed <= investment.totalDays) {
+                const daysToCredit = Math.floor(hoursSinceLastRevenue / 24);
+                const revenueToAdd = investment.dailyRevenue * daysToCredit * investment.count;
+                
+                totalRevenue += revenueToAdd;
+                
+                const newLastRevenueDate = investment.lastRevenueDate + (daysToCredit * 24 * 60 * 60 * 1000);
+                updates[`users/${userId}/investments/${productId}/lastRevenueDate`] = newLastRevenueDate;
+                revenuesCredited = true;
+              }
+            }
+          }
+        }
+
+        if (totalRevenue > 0) {
+          const newBalance = (userData.balance || 0) + totalRevenue;
+          updates[`users/${userId}/balance`] = newBalance;
+          
+          await update(ref(database), updates);
+          
+          showNotification(`+${totalRevenue.toLocaleString()} FCFA de revenus crédités !`, false);
+          updateLastUpdateTime();
+        } else if (revenuesCredited) {
+          await update(ref(database), updates);
+          updateLastUpdateTime();
+        }
+      } catch (error) {
+        console.error("Erreur lors du crédit des revenus:", error);
+        showNotification("Erreur lors du crédit des revenus", true);
+      }
+    }
+
+    // Gestion de l'authentification
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        showLoading(true);
+        
+        // Écouter les changements dans les données utilisateur
+        const userRef = ref(database, `users/${user.uid}`);
+        onValue(userRef, (snapshot) => {
+          const userData = snapshot.val() || {};
+          
+          // Mettre à jour l'interface
+          updateUserInterface(userData);
+          
+          // Vérifier et créditer les revenus
+          checkAndCreditRevenue(user.uid, userData);
+          
+          showLoading(false);
+        }, (error) => {
+          console.error("Erreur lors du chargement des données:", error);
+          showNotification("Erreur lors du chargement des données", true);
+          showLoading(false);
+        });
+
+        // Configurer la vérification périodique des revenus
+        if (checkRevenueInterval) {
+          clearInterval(checkRevenueInterval);
+        }
+        checkRevenueInterval = setInterval(() => {
+          const userRef = ref(database, `users/${user.uid}`);
+          onValue(userRef, (snapshot) => {
+            const userData = snapshot.val() || {};
+            checkAndCreditRevenue(user.uid, userData);
+          }, { onlyOnce: true });
+        }, 5 * 60 * 1000); // Vérifier toutes les 5 minutes
+      } else {
+        currentUser = null;
+        if (checkRevenueInterval) {
+          clearInterval(checkRevenueInterval);
+        }
+        showNotification("Veuillez vous connecter pour voir vos investissements", true);
+        updateUserInterface(null);
+      }
+    });
+
+    // Nettoyer l'intervalle quand la page est fermée
+    window.addEventListener('beforeunload', () => {
+      if (checkRevenueInterval) {
+        clearInterval(checkRevenueInterval);
+      }
+    });
+  </script>
+</body>
+</html>

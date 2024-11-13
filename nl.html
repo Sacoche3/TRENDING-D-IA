@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrait</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+        #withdrawal-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Effectuer un retrait</h1>
+    
+    <!-- Info du retrait -->
+    <div id="withdrawal-info"></div>
+    
+    <!-- Formulaire de retrait -->
+    <form id="withdrawal-form" onsubmit="makeWithdrawal(event)">
+        <div class="form-group">
+            <label for="amount">Montant à retirer:</label>
+            <input type="number" id="amount" min="1" required>
+        </div>
+        <div class="form-group">
+            <label for="withdrawalCode">Code de retrait:</label>
+            <input type="password" id="withdrawalCode" required>
+        </div>
+        <button type="submit">Effectuer le retrait</button>
+    </form>
+    
+    <!-- Messages d'erreur ou de succès -->
+    <div id="message"></div>
+
+    <p><a href="withdrawal-history.html">Voir l'historique des retraits</a></p>
+
+    <script type="module">
+        // Import des modules Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, push, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
+            authDomain: "trading-86409.firebaseapp.com",
+            databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
+            projectId: "trading-86409",
+            storageBucket: "trading-86409.firebasestorage.app",
+            messagingSenderId: "886645969622",
+            appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
+        };
+
+        // Initialisation de Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+
+        // Fonction pour vérifier le solde
+        async function checkBalance(userId) {
+            const balanceRef = ref(db, `users/${userId}/balance`);
+            const snapshot = await get(balanceRef);
+            return snapshot.exists() ? snapshot.val() : 0;
+        }
+
+        // Fonction pour mettre à jour le solde
+        async function updateBalance(userId, amount) {
+            const balanceRef = ref(db, `users/${userId}/balance`);
+            return runTransaction(balanceRef, (currentBalance) => {
+                if (currentBalance === null) return 0;
+                if (currentBalance < amount) {
+                    throw new Error('Solde insuffisant');
+                }
+                return currentBalance - amount;
+            });
+        }
+
+        // Fonction pour vérifier la configuration de retrait
+        async function checkWithdrawalConfig() {
+            const user = auth.currentUser;
+            if (!user) return null;
+
+            const configRef = ref(db, `users/${user.uid}/withdrawalConfig`);
+            const snapshot = await get(configRef);
+            return snapshot.val();
+        }
+
+        // Fonction principale de retrait
+        async function makeWithdrawal(event) {
+            event.preventDefault();
+            
+            const amount = Number(document.getElementById('amount').value);
+            const withdrawalCode = document.getElementById('withdrawalCode').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('Vous devez être connecté');
+                }
+
+                // Vérifier la configuration
+                const config = await checkWithdrawalConfig();
+                if (!config) {
+                    throw new Error('Veuillez d\'abord configurer vos informations de retrait');
+                }
+
+                if (withdrawalCode !== config.code) {
+                    throw new Error('Code de retrait incorrect');
+                }
+
+                // Vérifier et mettre à jour le solde
+                const currentBalance = await checkBalance(user.uid);
+                if (currentBalance < amount) {
+                    throw new Error('Solde insuffisant');
+                }
+
+                await updateBalance(user.uid, amount);
+
+                // Enregistrer le retrait
+                const withdrawalRef = ref(db, `users/${user.uid}/withdrawals`);
+                await push(withdrawalRef, {
+                    amount: amount,
+                    status: 'pending',
+                    timestamp: Date.now(),
+                    phone: config.phone,
+                    operator: config.operator,
+                    previousBalance: currentBalance,
+                    newBalance: currentBalance - amount
+                });
+
+                messageDiv.innerHTML = '<p class="success">Demande de retrait envoyée avec succès!</p>';
+                
+                // Redirection après 2 secondes
+                setTimeout(() => {
+                    window.location.href = 'withdrawal-history.html';
+                }, 2000);
+
+            } catch (error) {
+                messageDiv.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
+            }
+        }
+
+        // Rendre la fonction makeWithdrawal disponible globalement
+        window.makeWithdrawal = makeWithdrawal;
+
+        // Vérification initiale et affichage des informations
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const config = await checkWithdrawalConfig();
+                const balance = await checkBalance(user.uid);
+                const infoDiv = document.getElementById('withdrawal-info');
+                
+                if (config) {
+                    infoDiv.innerHTML = `
+                        <h3>Informations de retrait</h3>
+                        <p>Numéro: ${config.phone}</p>
+                        <p>Opérateur: ${config.operator}</p>
+                        <p>Solde disponible: ${balance.toLocaleString()} FCFA</p>
+                    `;
+                } else {
+                    infoDiv.innerHTML = '<p class="error">Veuillez d\'abord <a href="withdrawal-setup.html">configurer vos informations de retrait</a></p>';
+                    document.getElementById('withdrawal-form').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des informations:', error);
+                document.getElementById('message').innerHTML = `<p class="error">Erreur de chargement: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
