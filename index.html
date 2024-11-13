@@ -318,162 +318,143 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+ <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBjNLOXq8Xh3dRMJaE6eOHuqq0IXjn413U",
-            authDomain: "trading-86409.firebaseapp.com",
-            databaseURL: "https://trading-86409-default-rtdb.firebaseio.com",
-            projectId: "trading-86409",
-            storageBucket: "trading-86409.firebasestorage.app",
-            messagingSenderId: "886645969622",
-            appId: "1:886645969622:web:e3be0c80f5ee1e7ff82f77"
-        };
+    const firebaseConfig = {
+        apiKey: "API_KEY",
+        authDomain: "DOMAIN",
+        databaseURL: "DATABASE_URL",
+        projectId: "PROJECT_ID",
+        storageBucket: "STORAGE_BUCKET",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth();
-        const database = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const database = getDatabase(app);
 
-        function generateReferralCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            return Array.from({length: 6}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    function generateReferralCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        return Array.from({length: 6}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    }
+
+    async function checkReferralCode(code) {
+        if (!code) return null;
+        try {
+            const snapshot = await get(ref(database, 'referralCodes/' + code));
+            return snapshot.exists() ? snapshot.val() : null;
+        } catch (error) {
+            console.error("Erreur de vérification du code:", error);
+            return null;
         }
+    }
 
-        async function checkReferralCode(code) {
-            if (!code) return null;
-            try {
-                const snapshot = await get(ref(database, 'referralCodes/' + code));
-                return snapshot.exists() ? snapshot.val() : null;
-            } catch (error) {
-                console.error("Erreur de vérification du code:", error);
-                return null;
-            }
-        }
-
-        async function registerReferralCode(userId, code) {
-            try {
-                await set(ref(database, 'referralCodes/' + code), {
-                    userId,
-                    createdAt: Date.now()
-                });
-                return true;
-            } catch (error) {
-                console.error("Erreur d'enregistrement du code:", error);
-                return false;
-            }
-        }
-
-        async function updateUserBalance(userId, amount) {
-            try {
-                const userRef = ref(database, 'users/' + userId);
-                const snapshot = await get(userRef);
-                if (snapshot.exists()) {
-                    const currentBalance = snapshot.val().balance || 0;
-                    await set(ref(database, 'users/' + userId + '/balance'), currentBalance + amount);
-                }
-            } catch (error) {
-                console.error("Erreur de mise à jour du solde:", error);
-            }
-        }
-
-        window.showLogin = function() {
-            document.getElementById("loginFormData").classList.add("active");
-            document.getElementById("signupFormData").classList.remove("active");
-            document.querySelectorAll(".tab-button").forEach((btn, index) => {
-                btn.classList.toggle("active", index === 0);
+    async function registerReferralCode(userId, code) {
+        try {
+            await set(ref(database, 'referralCodes/' + code), {
+                userId,
+                createdAt: Date.now()
             });
+            return true;
+        } catch (error) {
+            console.error("Erreur d'enregistrement du code:", error);
+            return false;
         }
+    }
 
-        window.showSignup = function() {
-            document.getElementById("signupFormData").classList.add("active");
-            document.getElementById("loginFormData").classList.remove("active");
-            document.querySelectorAll(".tab-button").forEach((btn, index) => {
-                btn.classList.toggle("active", index === 1);
-            });
-        }
-
-        function setLoading(form, isLoading) {
-            form.classList.toggle('loading', isLoading);
-        }
-
-        document.getElementById("signupFormData").addEventListener("submit", async function(event) {
-            event.preventDefault();
-            setLoading(this, true);
-            const errorElement = document.getElementById("signupError");
-            const successElement = document.getElementById("signupSuccess");
-            errorElement.innerText = "";
-            successElement.innerText = "";
-
-            try {
-                const username = document.getElementById("signupUsername").value;
-                const email = document.getElementById("signupEmail").value;
-                const password = document.getElementById("signupPassword").value;
-                const confirmPassword = document.getElementById("confirmPassword").value;
-                const referralCode = document.getElementById("referralCode").value;
-
-                if (password !== confirmPassword) {
-                    throw new Error("Les mots de passe ne correspondent pas");
-                }
-
-                let referrerData = null;
-                if (referralCode) {
-                    referrerData = await checkReferralCode(referralCode);
-                    if (!referrerData) {
-                        throw new Error("Code de parrainage invalide");
-                    }
-                }
-
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                const newReferralCode = generateReferralCode();
-                
-                await set(ref(database, 'users/' + user.uid), {
-                    username,
-                    email,
-                    balance: 0,
-                    referralCode: newReferralCode,
-                    referredBy: referrerData?.userId || null,
-                    createdAt: Date.now()
-                });
-
-                await registerReferralCode(user.uid, newReferralCode);
-
-                if (referrerData) {
-                    await updateUserBalance(referrerData.userId, 0);
-                    await updateUserBalance(user.uid, 0);
-                    successElement.innerText = "Compte créé avec succès !";
-                }
-
-                setTimeout(() => {
-                    window.location.href = "solde.html";
-                }, 1500);
-
-            } catch (error) {
-                errorElement.innerText = error.message;
-            } finally {
-                setLoading(this, false);
+    async function updateUserBalance(userId, amount) {
+        try {
+            const userRef = ref(database, 'users/' + userId);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                const currentBalance = snapshot.val().balance || 0;
+                await set(ref(database, 'users/' + userId + '/balance'), currentBalance + amount);
             }
-        });
+        } catch (error) {
+            console.error("Erreur de mise à jour du solde:", error);
+        }
+    }
 
-        document.getElementById("loginFormData").addEventListener("submit", async function(event) {
-            event.preventDefault();
-            setLoading(this, true);
+    document.getElementById("signupFormData").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        setLoading(this, true);
+        const errorElement = document.getElementById("signupError");
+        const successElement = document.getElementById("signupSuccess");
+        errorElement.innerText = "";
+        successElement.innerText = "";
 
-            try {
-                const email = document.getElementById("loginEmail").value;
-                const password = document.getElementById("loginPassword").value;
+        try {
+            const username = document.getElementById("signupUsername").value;
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const referralCode = document.getElementById("referralCode").value;
 
-                await signInWithEmailAndPassword(auth, email, password);
+            if (password !== confirmPassword) {
+                throw new Error("Les mots de passe ne correspondent pas");
+            }
+
+            let referrerData = null;
+            if (referralCode) {
+                referrerData = await checkReferralCode(referralCode);
+                if (!referrerData) {
+                    throw new Error("Code de parrainage invalide");
+                }
+            }
+
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            const newReferralCode = generateReferralCode();
+            
+            await set(ref(database, 'users/' + user.uid), {
+                username,
+                email,
+                balance: 0,
+                referralCode: newReferralCode,
+                referredBy: referrerData?.userId || null,
+                createdAt: Date.now()
+            });
+
+            await registerReferralCode(user.uid, newReferralCode);
+
+            if (referrerData) {
+                // Récompense pour le parrain et le filleul
+                await updateUserBalance(referrerData.userId, 500);  // Récompense pour le parrain
+                await updateUserBalance(user.uid, 200);  // Récompense pour le filleul
+                successElement.innerText = "Compte créé avec succès !";
+            }
+
+            setTimeout(() => {
                 window.location.href = "solde.html";
-            } catch (error) {
-                document.getElementById("loginError").innerText = "Email ou mot de passe incorrect";
-            } finally {
-                setLoading(this, false);
-            }
-        });
-    </script>
+            }, 1500);
+
+        } catch (error) {
+            errorElement.innerText = error.message;
+        } finally {
+            setLoading(this, false);
+        }
+    });
+
+    document.getElementById("loginFormData").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        setLoading(this, true);
+
+        try {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+
+            await signInWithEmailAndPassword(auth, email, password);
+            window.location.href = "solde.html";
+        } catch (error) {
+            document.getElementById("loginError").innerText = "Email ou mot de passe incorrect";
+        } finally {
+            setLoading(this, false);
+        }
+    });
+</script>
 </body>
 </html>
