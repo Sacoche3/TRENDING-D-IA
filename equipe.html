@@ -272,7 +272,7 @@
                     document.getElementById('userReferralCode').textContent = userData.referralCode;
 
                     // Génération automatique du lien de parrainage
-                    const referralLink = `${window.location.origin}/register?ref=${userData.referralCode}`;
+                    const referralLink = `${window.location.origin}/index.html?ref=${userData.referralCode}`;
                     document.getElementById('referralLink').textContent = referralLink;
                     document.getElementById('referralLink').href = referralLink;
                 }
