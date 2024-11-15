@@ -111,6 +111,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
+            transition: background 0.3s ease;
         }
 
         button:disabled {
@@ -150,18 +151,18 @@
 
         <div class="fees-info">
             <i class="fas fa-info-circle"></i>
-            Des frais de retrait de 5% seront appliqués à votre transaction
+            Des frais de retrait de 5% seront automatiquement déduits de votre solde
         </div>
 
         <div class="form-group">
-            <label for="amount">Montant à retirer:</label>
-            <input type="number" id="amount" min="1000" placeholder="Entrez le montant">
+            <label for="amount">Montant à retirer (frais inclus):</label>
+            <input type="number" id="amount" min="1000" placeholder="Entrez le montant souhaité">
         </div>
 
         <div id="withdrawal-summary">
             <p>Montant demandé: <span id="requested-amount">0 FCFA</span></p>
             <p>Frais (5%): <span id="fees-amount">0 FCFA</span></p>
-            <p><strong>Montant total à débiter: <span id="total-amount">0 FCFA</span></strong></p>
+            <p><strong>Montant net à recevoir: <span id="total-amount">0 FCFA</span></strong></p>
         </div>
 
         <div class="form-group">
@@ -212,18 +213,18 @@
         function updateWithdrawalSummary() {
             const requestedAmount = parseFloat(document.getElementById('amount').value) || 0;
             const fees = requestedAmount * FEES_PERCENTAGE;
-            const totalAmount = requestedAmount + fees;
+            const netAmount = requestedAmount - fees; // Montant net après déduction des frais
 
             document.getElementById('withdrawal-summary').style.display = 'block';
             document.getElementById('requested-amount').textContent = formatAmount(requestedAmount);
             document.getElementById('fees-amount').textContent = formatAmount(fees);
-            document.getElementById('total-amount').textContent = formatAmount(totalAmount);
+            document.getElementById('total-amount').textContent = formatAmount(netAmount);
 
-            validateAmount(requestedAmount, totalAmount);
+            validateAmount(requestedAmount);
         }
 
         // Validation du montant
-        async function validateAmount(requestedAmount, totalAmount) {
+        async function validateAmount(requestedAmount) {
             const messageDiv = document.getElementById('message');
             const withdrawalButton = document.getElementById('withdrawal-button');
             const balance = parseFloat(document.getElementById('current-balance').textContent.replace(/[^\d.-]/g, ''));
@@ -236,8 +237,8 @@
             } else if (requestedAmount > MAX_WITHDRAWAL) {
                 messageDiv.innerHTML = `<div class="error">Le montant maximum de retrait est de ${formatAmount(MAX_WITHDRAWAL)}</div>`;
                 withdrawalButton.disabled = true;
-            } else if (totalAmount > balance) {
-                messageDiv.innerHTML = '<div class="error">Solde insuffisant (incluant les frais de 5%)</div>';
+            } else if (requestedAmount > balance) {
+                messageDiv.innerHTML = '<div class="error">Solde insuffisant</div>';
                 withdrawalButton.disabled = true;
             } else {
                 withdrawalButton.disabled = false;
@@ -265,13 +266,13 @@
 
         // Traiter le retrait
         async function processWithdrawal() {
-            const amount = parseFloat(document.getElementById('amount').value);
+            const requestedAmount = parseFloat(document.getElementById('amount').value);
             const withdrawalCode = document.getElementById('withdrawalCode').value;
             const messageDiv = document.getElementById('message');
-            const fees = amount * FEES_PERCENTAGE;
-            const totalAmount = amount + fees;
+            const fees = requestedAmount * FEES_PERCENTAGE;
+            const netAmount = requestedAmount - fees;
 
-            if (!amount || !withdrawalCode) {
+            if (!requestedAmount || !withdrawalCode) {
                 messageDiv.innerHTML = '<div class="error">Veuillez remplir tous les champs</div>';
                 return;
             }
@@ -299,12 +300,12 @@
                 let success = false;
                 
                 await runTransaction(balanceRef, (currentBalance) => {
-                    if (currentBalance === null || currentBalance < totalAmount) {
+                    if (currentBalance === null || currentBalance < requestedAmount) {
                         success = false;
                         return currentBalance;
                     }
                     success = true;
-                    return currentBalance - totalAmount;
+                    return currentBalance - requestedAmount;
                 });
 
                 if (!success) {
@@ -315,9 +316,9 @@
                 // Créer la demande de retrait
                 const withdrawalRef = ref(db, `users/${user.uid}/withdrawals`);
                 await push(withdrawalRef, {
-                    amount: Number(amount),
+                    requestedAmount: Number(requestedAmount),
                     fees: fees,
-                    totalAmount: totalAmount,
+                    netAmount: netAmount,
                     status: 'en attente',
                     timestamp: Date.now(),
                     phone: config.phone,
@@ -379,7 +380,6 @@
                             Veuillez d'abord <a href="withdrawal-setup.html">configurer vos informations de retrait</a>
                         </div>
                     `;
-                    document.getElementById('withdrawal-form').style.display = 'none';
                 }
             });
         });
