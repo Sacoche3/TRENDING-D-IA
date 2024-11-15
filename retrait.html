@@ -243,7 +243,7 @@
 
             <div class="form-group">
                 <label for="amount">Montant à retirer:</label>
-                <input type="number" id="amount" min="1000" max="600000" required placeholder="Entrez le montant">
+                <input type="number" id="amount" min="950" max="600000" required placeholder="Entrez le montant">
             </div>
 
             <div id="withdrawal-summary">
@@ -293,7 +293,7 @@
         const auth = getAuth();
 
         // Constantes pour les limites de retrait
-        const MIN_WITHDRAWAL = 1000;
+        const MIN_WITHDRAWAL = 950;
         const MAX_WITHDRAWAL = 600000;
 
         // Fonction pour formater les montants
