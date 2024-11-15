@@ -233,22 +233,22 @@
         <div id="withdrawal-form">
             <div class="fees-info">
                 <i class="fas fa-info-circle"></i>
-                <span>Des frais de retrait de 5% seront appliqués à votre transaction</span>
+                <span>Des frais de retrait de 13% seront appliqués à votre transaction</span>
             </div>
 
             <div class="limits-info">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>Limites de retrait : Minimum 1 000 FCFA - Maximum 600 000 FCFA</span>
+                <span>Limites de retrait : Minimum 1 500 FCFA - Maximum 600 000 FCFA</span>
             </div>
 
             <div class="form-group">
                 <label for="amount">Montant à retirer:</label>
-                <input type="number" id="amount" min="950" max="600000" required placeholder="Entrez le montant">
+                <input type="number" id="amount" min="1500" max="600000" required placeholder="Entrez le montant">
             </div>
 
             <div id="withdrawal-summary">
                 <p>Montant demandé: <span id="requested-amount">0 FCFA</span></p>
-                <p>Frais (5%): <span id="fees-amount">0 FCFA</span></p>
+                <p>Frais (13%): <span id="fees-amount">0 FCFA</span></p>
                 <p><strong>Montant total à débiter: <span id="total-amount">0 FCFA</span></strong></p>
             </div>
 
@@ -293,7 +293,7 @@
         const auth = getAuth();
 
         // Constantes pour les limites de retrait
-        const MIN_WITHDRAWAL = 950;
+        const MIN_WITHDRAWAL = 1300;
         const MAX_WITHDRAWAL = 600000;
 
         // Fonction pour formater les montants
@@ -304,7 +304,7 @@
         // Fonction pour mettre à jour le résumé du retrait
         function updateWithdrawalSummary() {
             const amount = parseFloat(document.getElementById('amount').value) || 0;
-            const fees = amount * 0.05;
+            const fees = amount * 0.13;
             const total = amount + fees;
 
             document.getElementById('withdrawal-summary').style.display = 'block';
@@ -361,7 +361,7 @@
             const amount = parseFloat(document.getElementById('amount').value);
             const withdrawalCode = document.getElementById('withdrawalCode').value;
             const messageDiv = document.getElementById('message');
-            const fees = amount * 0.05;
+            const fees = amount * 0.13;
             const totalAmount = amount + fees;
 
             if (!amount || !withdrawalCode) {
