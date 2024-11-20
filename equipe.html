@@ -165,7 +165,7 @@
         }) + ' FCFA';
     }
 
-    // Fonction pour créditer un bonus de 5 % en FCFA
+    // Fonction pour créditer un bonus de 10 % en FCFA
     async function creditBonus(userId, totalTeamBalance) {
         try {
             const userRef = ref(database, `users/${userId}`);
@@ -173,12 +173,12 @@
             const userData = snapshot.val();
             
             if (userData.bonusCredited) {
-                console.log(`Le bonus de 5 % a déjà été crédité pour l'utilisateur ${userId}.`);
+                console.log(`Le bonus de 10 % a déjà été crédité pour l'utilisateur ${userId}.`);
                 return;
             }
 
             const currentBalance = userData.balance || 0;
-            const bonusAmount = totalTeamBalance * 0.05;
+            const bonusAmount = totalTeamBalance * 0.10;
             const newBalance = currentBalance + bonusAmount;
 
             await update(userRef, {
@@ -199,7 +199,7 @@
 
         if (teamMembers.length > 0) {
             const totalTeamBalance = teamMembers.reduce((sum, member) => sum + (member.balance || 0), 0);
-            const totalBonus = totalTeamBalance * 0.05;
+            const totalBonus = totalTeamBalance * 0.10;
 
             document.getElementById('teamCount').textContent = teamMembers.length;
             document.getElementById('totalBonus').textContent = formatFCFA(totalBonus);
